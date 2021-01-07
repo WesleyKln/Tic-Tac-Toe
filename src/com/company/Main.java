@@ -1,60 +1,104 @@
 package com.company;
 
+import java.util.InputMismatchException;
+import java.util.Random;
+import java.util.Scanner;
+
 public class Main {
+    // Board game init
+    static Grid boardGame = new Grid();
 
     public static void main(String[] args) {
-	// write your code here
-        // PLayers init
-            Player player1 = new Player('X', "Joueur1");
-            Player player2 = new Player('O', "Joueur2");
-        // Board game init
-            Grid grid1 = new Grid("5", 5, new char [] {'1','2','3','4','5','6','7','8','9'});
+        // Game setup
+            // PLayers init with custom pseudo
+            System.out.println("Hello, what's the first player's name ?");
+            Player player1 = new Player('X', askPlayerName());
 
-        // Game launch
-            System.out.println("Bienvenue dans le jeu du Morpion. Ce jeu se joue avec deux joueurs \n" +
-                "sur une grille d’une dimension de 3 x 3. Le joueur 1 joue avec \n" +
-                "les croix (X) et joue en premier et le joueur 2 joue avec les ronds (O).");
+            System.out.println("What's the second player's name ?");
+            Player player2 = new Player( 'O', askPlayerName());
 
-            System.out.println("\nLe quadrillage du morpion apparaît de cette manière au début du jeu.");
-            grid1.printGrid();
-            System.out.println("A tour de rôle, le joueur doit choisir un emplacement disponible \n" +
-                    "en entrant un chiffre disponible entre 1 et 9. Le chiffre sera remplacé par \n" +
-                    "le symbole du joueur. Le but du jeu est d’aligner trois mêmes symboles. A vous de jouer ! \n");
-        //Player's turn
-            boolean hasWon = false;
-            int counter = 0;
+            // Welcome message
+            System.out.println("\nWelcome to Tic Tac Toe, " + player1.getName() + " and " + player2.getName() + ".\n");
 
-            while(!hasWon) {
-                //Player 1
-                if (counter % 2 == 0 && hasWon == false) {
-                    grid1.printGrid();
-                    System.out.println("Player 1, your turn :");
-                    grid1.launchInput(player1.getPlayerToken());
-                    counter++;
-                    //Condition de victoire
-                    if (grid1.checkVictory()) {
-                        grid1.printGrid();
-                        hasWon = true;
-                        System.out.println("Player 1, you are the winner !");
-                    };
+            // Rules
+            System.out.println("This is a two players game with a 3x3 grid.\n" +
+                "First player will play with the CROSS (X) while the second one will\n" +
+                "have the CIRCLE (O). The first player will be randomly chosen so, be vigilant !\n");
+
+            System.out.println("At the beginning, the board game will be printed like that : \n");
+            boardGame.printGrid();
+
+            System.out.println("\n At each turn, player will choose an available number on the grid to insert his token\n" +
+                    "by entering a number between 1 and 9. And voilà, this case is now yours !\n" +
+                    "To win at this game, you need to align 3 of your Token before your opponent. So, here we go !\n");
+
+            //Game launch
+            boardGame.printGrid();
+            //Player turn
+            String currentPlayer = randomFirstPlayer(player1.getName(), player2.getName());
+            System.out.println("\nTic Tac toe has decided that the first player will be... " + currentPlayer);
+            do {
+                if (currentPlayer.equals(player1.getName())) {
+                    currentPlayer = player2.getName();
+                    System.out.println(player1.getName() + " , it's your turn.");
+                    launchInput(player1.getPlayerToken());
+                } else {
+                    System.out.println(player2.getName() + " , it's your turn.");
+                    currentPlayer = player1.getName();
+                    launchInput(player2.getPlayerToken());
                 }
-                //PLayer 2
-                if (counter % 2 == 1 && hasWon == false && counter < 8) {
-                    grid1.printGrid();
-                    System.out.println("Player 2, your turn :");
-                    grid1.launchInput(player2.getPlayerToken());
-                    counter++;
-                    //Condition de victoire
-                    if (grid1.checkVictory()) {
-                        grid1.printGrid();
-                        hasWon = true;
-                        System.out.println("Player 2, you are the winner !");
-                    };
+            } while (!boardGame.checkVictory());
+            System.out.println(currentPlayer + " has won the game !");
+    }
+
+    /**
+     * Method to ask player's name
+     * @return player name
+     */
+    public static String askPlayerName() {
+            Scanner playerNameInput = new Scanner(System.in);
+            return playerNameInput.nextLine();
+    }
+
+    /**
+     * Method to choose randomly the first player
+     * @param player1Name First player name
+     * @param player2Name Second player name
+     * @return the player who will play in first position
+     */
+    public static String randomFirstPlayer(String player1Name, String player2Name) {
+        int[] players = new int[2];
+        int randomPlayer = new Random().nextInt(players.length);
+        if (randomPlayer == 1) {
+            return player1Name;
+        }
+        return player2Name;
+    }
+
+    /**
+     * Method to launch and check if the input is valid
+     * @param playerToken Number (1 - 9) the player has entered
+     */
+    public static void launchInput(char playerToken) {
+        // Check if the input is a number
+        boolean isValid = false;
+        while(!isValid) {
+            try {
+                Scanner input = new Scanner(System.in);
+                System.out.println("Choose a number between 1 to 9 :");
+                // retrieve input field (input.nextLine())
+                int userNumberChoice = input.nextInt();
+                // Check if the number is between 1 and 9
+                if (userNumberChoice < 1 || userNumberChoice > 9) {
+                    System.out.println("Sorry, you need to choose a number between 1 and 9.");
+                } else {
+                    isValid = true;
+                    boardGame.addToken(userNumberChoice, playerToken);
+                    boardGame.printGrid();
                 }
-                if (counter == 9) {
-                    System.out.println("No one has won !");
-                    hasWon = true;
-                }
+            } catch (InputMismatchException exception) {
+                System.out.println("Sorry, I can't deal with characters !");
             }
+        }
     }
 }

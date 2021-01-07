@@ -1,5 +1,8 @@
 package com.company;
 
+import java.util.Random;
+import java.util.Scanner;
+
 public class Player {
     private char playerToken;
     private String name;
@@ -19,4 +22,6 @@ public class Player {
     public char getPlayerToken() {
         return this.playerToken;
     }
+
+
 }
